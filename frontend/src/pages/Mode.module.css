@@ -1,0 +1,38 @@
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy-dark);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.comingSoon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  max-width: 360px;
+}
+
+.icon {
+  font-size: 48px;
+}
+
+.comingSoon h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.comingSoon p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}

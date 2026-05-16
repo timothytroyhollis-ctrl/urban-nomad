@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Build output
+frontend/dist/
+frontend/.vite/
+
+# Environment — never commit real keys
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+**/.env
+# ^ belt-and-suspenders: catches backend/.env, frontend/.env, etc.
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
