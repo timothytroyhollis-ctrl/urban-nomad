@@ -1,7 +1,7 @@
 services:
   # FastAPI backend
   - type: web
-    name: urban-nomad-api
+    name: urbannomadapi
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -17,11 +17,11 @@ services:
       - key: DATABASE_URL
         value: sqlite+aiosqlite:///./urban_nomad.db
       - key: CORS_ORIGINS
-        value: https://urban-nomad.onrender.com
+        value: https://urbannomad.onrender.com
 
   # React PWA (static site)
   - type: web
-    name: urban-nomad
+    name: urbannomad
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
@@ -40,4 +40,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://urban-nomad-api.onrender.com/api
+        value: https://urbannomadapi.onrender.com/api
