@@ -5,6 +5,7 @@ import TipCard from '../components/TipCard'
 import EventCard from '../components/EventCard'
 import LocationSearch from '../components/LocationSearch'
 import CalendarView from '../components/CalendarView'
+import Footer from '../components/Footer'
 import { getBriefing, getTips, addTip, getEvents } from '../services/api'
 import { useRecentSearches } from '../hooks/useRecentSearches'
 import { shareContent } from '../utils/share'
@@ -346,6 +347,7 @@ export default function NomadMode() {
           </div>
         )}
 
+        <Footer />
       </main>
     </div>
   )

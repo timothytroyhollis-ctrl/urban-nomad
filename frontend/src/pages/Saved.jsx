@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import EventCard from '../components/EventCard'
+import Footer from '../components/Footer'
 import { useFavorites } from '../hooks/useFavorites'
 import styles from './Saved.module.css'
 
@@ -81,6 +82,8 @@ export default function Saved() {
             ))}
           </div>
         )}
+
+        <Footer />
       </main>
     </div>
   )

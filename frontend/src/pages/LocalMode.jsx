@@ -4,6 +4,7 @@ import EventCard from '../components/EventCard'
 import LocationSearch from '../components/LocationSearch'
 import DateFilter from '../components/DateFilter'
 import CalendarView from '../components/CalendarView'
+import Footer from '../components/Footer'
 import { getEvents } from '../services/api'
 import { useRecentSearches } from '../hooks/useRecentSearches'
 import styles from './LocalMode.module.css'
@@ -160,6 +161,8 @@ export default function LocalMode() {
             <p>Search any city or zip code to see what's happening</p>
           </div>
         )}
+
+        <Footer />
       </main>
     </div>
   )

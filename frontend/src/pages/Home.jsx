@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
+import Footer from '../components/Footer'
 import styles from './Home.module.css'
 
 const MODES = [
@@ -82,6 +83,8 @@ export default function Home() {
       <footer className={styles.footer}>
         <span>No account needed &nbsp;·&nbsp; Always free</span>
       </footer>
+
+      <Footer />
     </div>
   )
 }
