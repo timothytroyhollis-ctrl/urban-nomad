@@ -8,21 +8,38 @@
   overflow: hidden;
 }
 
-/* Map background — visible by default, fades out when results show */
+/* Map background — subtle atmosphere so search stays the focus */
 .page::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: -30px;
   background: url('/map2-bg.jpg') center / cover no-repeat;
-  filter: blur(3px) brightness(0.5) saturate(1.4) contrast(1.1);
+  filter: blur(5px) brightness(0.5) saturate(1.5) contrast(1.1);
   opacity: 1;
+  z-index: -2;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+/* Top-down dark gradient — search section crisp, fades at bottom */
+.page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 26, 53, 0.45) 0%,
+    rgba(15, 26, 53, 0.30) 50%,
+    rgba(15, 26, 53, 0.15) 100%
+  );
   z-index: -1;
   pointer-events: none;
   transition: opacity 0.5s ease;
 }
 
-/* Hide map once user has results loaded */
-.pageActive::before {
+/* Hide map + overlay once user has results loaded */
+.pageActive::before,
+.pageActive::after {
   opacity: 0;
 }
 
