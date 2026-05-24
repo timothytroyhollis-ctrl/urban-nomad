@@ -1,12 +1,26 @@
 .page {
+  position: relative;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: var(--safe-top) 16px max(40px, calc(var(--safe-bottom) + 24px));
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(39, 174, 96, 0.12) 0%, transparent 60%),
-    var(--navy-dark);
+  background: var(--navy-dark);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Blurred map layer — the image itself is darkened so no blue overlay needed */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: -60px;
+  background: url('/map-bg.jpg') center / cover no-repeat;
+  /* brightness drops white→gray, saturate punches up colors, contrast keeps detail */
+  filter: blur(12px) brightness(0.45) saturate(1.8) contrast(1.15);
+  opacity: 1;
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Hero */

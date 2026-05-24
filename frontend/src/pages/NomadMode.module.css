@@ -430,19 +430,40 @@
 .stateTitle { font-size: 18px; font-weight: 600; }
 .stateSub { font-size: 14px; color: var(--text-secondary); max-width: 300px; line-height: 1.6; }
 
-/* Idle */
+/* Idle — watercolor map atmosphere */
 .idleHint {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   padding: 60px 20px;
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--white-soft);
   font-size: 15px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--white-dim);
+  background: var(--navy-dark);
+}
+.idleHint::before {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  background: url('/map-bg.jpg') center / cover no-repeat;
+  filter: blur(10px) brightness(0.45) saturate(1.8) contrast(1.15);
+  opacity: 1;
+  z-index: -1;
+  pointer-events: none;
 }
 
-.idleGlobe { font-size: 56px; }
+.idleGlobe {
+  font-size: 56px;
+  filter: drop-shadow(0 0 24px rgba(243, 156, 18, 0.45));
+  position: relative;
+  z-index: 1;
+}
 
 .idleExamples {
   display: flex;

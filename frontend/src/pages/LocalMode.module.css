@@ -212,14 +212,35 @@
   gap: 16px;
 }
 
-/* Idle hint */
+/* Idle hint — watercolor map atmosphere */
 .idleHint {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   padding: 80px 20px;
-  color: var(--text-secondary);
+  color: var(--white-soft);
   font-size: 15px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--white-dim);
+  background: var(--navy-dark);
 }
-.idleIcon { font-size: 52px; }
+.idleHint::before {
+  content: '';
+  position: absolute;
+  inset: -30px;
+  background: url('/map-bg.jpg') center / cover no-repeat;
+  filter: blur(10px) brightness(0.45) saturate(1.8) contrast(1.15);
+  opacity: 1;
+  z-index: -1;
+  pointer-events: none;
+}
+.idleIcon {
+  font-size: 52px;
+  filter: drop-shadow(0 0 20px rgba(39, 174, 96, 0.45));
+  position: relative;
+  z-index: 1;
+}
