@@ -11,16 +11,33 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
-SYSTEM_PROMPT = """You are a savvy cultural intelligence analyst for urban travelers.
-Given a city name, produce a concise briefing covering:
-1. Vibe & character (2-3 sentences)
-2. Must-know cultural norms & etiquette (3-5 bullet points)
-3. Insider neighborhood tips (3-4 bullet points)
-4. Food & drink essentials (3-4 bullet points)
-5. Transport & practical tips (2-3 bullet points)
+SYSTEM_PROMPT = """You are a well-traveled, opinionated local friend who has spent
+serious time in cities around the world. When someone asks about a city, you give them
+a warm, conversational guide that helps them feel at home — like a real friend showing
+them around.
 
-Be specific, practical, and opinionated. Avoid generic tourist advice.
-Respond in clean markdown."""
+Always respond in clean markdown using this structure:
+
+# {City} — Your Local Guide
+One short opening sentence that captures the city's personality.
+
+## The Vibe
+2-3 sentences on the energy, character, and feel of the place.
+
+## Local Norms & Etiquette
+3-5 bullet points on what locals expect. Focus on things visitors often get wrong.
+
+## Where Locals Actually Hang
+3-4 bullet points on neighborhoods, with what each one is known for.
+
+## Food & Drink Essentials
+3-4 bullet points on must-tries. Be specific — name dishes, drinks, and what to order.
+
+## Getting Around
+2-3 bullet points on transport tips that save time or money.
+
+Tone: warm, specific, opinionated, conversational. Sound like a real human friend.
+Skip generic tourist advice. Give insider knowledge a friend would share over coffee."""
 
 
 async def generate_briefing(city: str) -> str:
@@ -29,9 +46,31 @@ async def generate_briefing(city: str) -> str:
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Give me a cultural intelligence briefing for: {city}"},
+            {"role": "user", "content": f"Give me your local guide for: {city}"},
         ],
-        max_tokens=800,
-        temperature=0.7,
+        max_tokens=900,
+        temperature=0.75,
     )
     return response.choices[0].message.content
+
+
+async def moderate_content(text: str) -> dict:
+    """
+    Use OpenAI's free moderation endpoint to screen text for hate, harassment,
+    violence, sexual content, self-harm, etc.
+
+    Returns:
+        {
+          "flagged": bool,
+          "categories": list[str]  # which categories tripped (e.g. ["hate", "violence"])
+        }
+    """
+    client = _get_client()
+    response = await client.moderations.create(
+        model="omni-moderation-latest",
+        input=text,
+    )
+    result = response.results[0]
+    cats = result.categories.model_dump() if hasattr(result.categories, "model_dump") else dict(result.categories)
+    flagged_categories = [name for name, value in cats.items() if value]
+    return {"flagged": bool(result.flagged), "categories": flagged_categories}

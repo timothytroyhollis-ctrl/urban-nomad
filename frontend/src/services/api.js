@@ -7,7 +7,12 @@ async function request(path, options = {}) {
   })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new Error(err.detail || 'Request failed')
+    // Moderation rejections return a structured detail object
+    const detail = err.detail
+    if (detail && typeof detail === 'object' && detail.message) {
+      throw new Error(detail.message)
+    }
+    throw new Error(detail || 'Request failed')
   }
   return res.json()
 }

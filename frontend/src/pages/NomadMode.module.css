@@ -43,6 +43,21 @@
   opacity: 0;
 }
 
+/* Mobile / PWA — heavier treatment so search dominates */
+@media (max-width: 640px) {
+  .page::before {
+    filter: blur(8px) brightness(0.38) saturate(1.4) contrast(1.1);
+  }
+  .page::after {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 26, 53, 0.70) 0%,
+      rgba(15, 26, 53, 0.55) 50%,
+      rgba(15, 26, 53, 0.40) 100%
+    );
+  }
+}
+
 .main {
   flex: 1;
   max-width: 860px;

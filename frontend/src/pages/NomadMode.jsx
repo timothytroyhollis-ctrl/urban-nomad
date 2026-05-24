@@ -49,7 +49,7 @@ export default function NomadMode() {
   const handleSharePlaybook = async () => {
     const res = await shareContent({
       title: `${displayName} — Urban Nomad`,
-      text: `Local playbook for ${displayName}. Get the inside scoop on culture, food, and neighborhoods.`,
+      text: `Local guide for ${displayName}. Get the inside scoop on culture, food, and neighborhoods.`,
       url: `${window.location.origin}/nomad?city=${encodeURIComponent(displayName)}`,
     })
     if (res.method === 'clipboard' && res.ok) {
@@ -101,10 +101,13 @@ export default function NomadMode() {
     }
   }, [record])
 
+  const [formError, setFormError] = useState('')
+
   const submitTip = async (e) => {
     e.preventDefault()
     if (!form.content.trim()) return
     setFormStatus('loading')
+    setFormError('')
     try {
       await addTip({ ...form, city: displayName, category: form.category.toLowerCase() })
       const data = await getTips(displayName)
@@ -112,7 +115,14 @@ export default function NomadMode() {
       setForm(INITIAL_FORM)
       setShowForm(false)
       setFormStatus('idle')
-    } catch {
+    } catch (err) {
+      // Detect moderation rejection vs generic error
+      const msg = err?.message || ''
+      if (msg.toLowerCase().includes("community standards")) {
+        setFormError(msg)
+      } else {
+        setFormError('Failed to post — try again.')
+      }
       setFormStatus('error')
     }
   }
@@ -134,7 +144,7 @@ export default function NomadMode() {
 
         <section className={styles.searchSection}>
           <h1 className={styles.heading}><span>✈️</span> Nomad Mode</h1>
-          <p className={styles.sub}>The local playbook + events + insider tips for any city on Earth</p>
+          <p className={styles.sub}>Your local guide + events + insider tips for any city on Earth</p>
           <LocationSearch
             onSearch={search}
             loading={isLoading}
@@ -165,14 +175,14 @@ export default function NomadMode() {
                 {playbookStatus === 'loading' && (
                   <div className={styles.stateBox}>
                     <div className={styles.globeSpinner}>🌍</div>
-                    <p>Building your local playbook for {displayName}…</p>
+                    <p>Building your local guide for {displayName}…</p>
                     <p className={styles.stateSub}>This takes 5–10 seconds</p>
                   </div>
                 )}
                 {playbookStatus === 'error' && (
                   <div className={styles.stateBox}>
                     <span className={styles.stateIcon}>⚠️</span>
-                    <p>Couldn't generate the playbook — check your OpenAI key.</p>
+                    <p>Couldn't generate your guide — check your OpenAI key.</p>
                   </div>
                 )}
                 {playbookStatus === 'success' && (
@@ -289,7 +299,7 @@ export default function NomadMode() {
                         {formStatus === 'loading' ? <span className={styles.spinner} /> : 'Post Tip'}
                       </button>
                     </div>
-                    {formStatus === 'error' && <p className={styles.formError}>Failed to post — try again.</p>}
+                    {formStatus === 'error' && <p className={styles.formError}>{formError}</p>}
                   </form>
                 )}
 

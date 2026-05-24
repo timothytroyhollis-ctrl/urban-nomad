@@ -13,8 +13,19 @@ class Base(DeclarativeBase):
 
 
 async def init_db():
+    from sqlalchemy import text
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Lightweight migrations for SQLite — add columns if they don't exist
+        # (create_all only creates new tables; existing tables don't gain columns)
+        for stmt in [
+            "ALTER TABLE local_tips ADD COLUMN status VARCHAR(20) DEFAULT 'approved'",
+            "ALTER TABLE local_tips ADD COLUMN rejection_categories VARCHAR(255)",
+        ]:
+            try:
+                await conn.execute(text(stmt))
+            except Exception:
+                pass  # column already exists
 
 
 async def get_db() -> AsyncSession:

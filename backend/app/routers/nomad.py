@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import LocalTip
-from ..services.openai_service import generate_briefing
+from ..services.openai_service import generate_briefing, moderate_content
 
 router = APIRouter(tags=["nomad"])
 
@@ -30,9 +30,10 @@ async def get_tips(
     city: str = Query(..., min_length=1, max_length=100),
     db: AsyncSession = Depends(get_db),
 ):
+    # Only return approved tips to the public
     result = await db.execute(
         select(LocalTip)
-        .where(LocalTip.city == city)
+        .where(LocalTip.city == city, LocalTip.status == "approved")
         .order_by(LocalTip.created_at.desc())
         .limit(50)
     )
@@ -54,8 +55,59 @@ async def get_tips(
 
 @router.post("/tips", status_code=201)
 async def post_tip(body: TipCreate, db: AsyncSession = Depends(get_db)):
-    tip = LocalTip(**body.model_dump())
+    # Run AI moderation first
+    try:
+        moderation = await moderate_content(body.content)
+    except Exception:
+        # If moderation API fails, fall back to permissive (better to allow than to lock users out)
+        moderation = {"flagged": False, "categories": []}
+
+    tip = LocalTip(
+        **body.model_dump(),
+        status="rejected" if moderation["flagged"] else "approved",
+        rejection_categories=",".join(moderation["categories"]) if moderation["flagged"] else None,
+    )
     db.add(tip)
     await db.commit()
     await db.refresh(tip)
-    return {"id": tip.id, "created_at": tip.created_at.isoformat()}
+
+    if moderation["flagged"]:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Your tip didn't pass our community standards check. Please rephrase and try again.",
+                "categories": moderation["categories"],
+            },
+        )
+    return {"id": tip.id, "created_at": tip.created_at.isoformat(), "status": "approved"}
+
+
+@router.get("/admin/rejected-tips")
+async def get_rejected_tips(db: AsyncSession = Depends(get_db)):
+    """
+    Returns the full list of tips that failed AI moderation.
+    NOTE: No auth in v1 — when this is deployed publicly, lock this endpoint
+    behind a token or admin auth before anything sensitive is in the DB.
+    """
+    result = await db.execute(
+        select(LocalTip)
+        .where(LocalTip.status == "rejected")
+        .order_by(LocalTip.created_at.desc())
+        .limit(500)
+    )
+    tips = result.scalars().all()
+    return {
+        "count": len(tips),
+        "tips": [
+            {
+                "id": t.id,
+                "city": t.city,
+                "category": t.category,
+                "content": t.content,
+                "author_handle": t.author_handle,
+                "rejection_categories": (t.rejection_categories or "").split(",") if t.rejection_categories else [],
+                "created_at": t.created_at.isoformat(),
+            }
+            for t in tips
+        ],
+    }

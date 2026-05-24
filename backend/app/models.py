@@ -12,6 +12,10 @@ class LocalTip(Base):
     category: Mapped[str] = mapped_column(String(60), default="general")
     content: Mapped[str] = mapped_column(Text)
     author_handle: Mapped[str] = mapped_column(String(60), default="anonymous")
+    # Moderation: approved | rejected
+    status: Mapped[str] = mapped_column(String(20), default="approved", index=True)
+    # Comma-separated list of moderation categories that flagged the content
+    rejection_categories: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
