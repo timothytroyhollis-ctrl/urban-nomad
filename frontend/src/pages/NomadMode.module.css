@@ -110,7 +110,9 @@
     -webkit-overflow-scrolling: touch;
   }
   .tabs::-webkit-scrollbar { display: none; }
-  .tab { padding: 12px 12px; font-size: 13px; }
+  .tab { padding: 12px 10px; font-size: 13px; }
+  /* Drop "The Local " and "Community " on small screens */
+  .tabFull { display: none; }
 }
 .tab:hover { color: var(--white); }
 .tabActive { color: var(--white) !important; border-bottom-color: var(--amber) !important; }

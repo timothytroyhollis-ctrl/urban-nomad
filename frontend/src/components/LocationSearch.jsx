@@ -121,8 +121,8 @@ export default function LocationSearch({ onSearch, loading, accentColor = 'green
               type="text"
               placeholder="City name — e.g. Jacksonville"
               value={city}
-              onChange={e => setCity(e.target.value)}
-              onFocus={() => recent.length > 0 && setShowRecent(true)}
+              onChange={e => { setCity(e.target.value); if (e.target.value) setShowRecent(false) }}
+              onFocus={() => recent.length > 0 && !city && setShowRecent(true)}
             />
             <input
               className={`${styles.input} ${styles.stateInput}`}
@@ -130,6 +130,7 @@ export default function LocationSearch({ onSearch, loading, accentColor = 'green
               placeholder="State / Country"
               value={state}
               onChange={e => setState(e.target.value)}
+              onFocus={() => setShowRecent(false)}
             />
           </div>
         ) : (
@@ -138,8 +139,8 @@ export default function LocationSearch({ onSearch, loading, accentColor = 'green
             type="text"
             placeholder="ZIP or postal code — e.g. 32099"
             value={zip}
-            onChange={e => setZip(e.target.value)}
-            onFocus={() => recent.length > 0 && setShowRecent(true)}
+            onChange={e => { setZip(e.target.value); if (e.target.value) setShowRecent(false) }}
+            onFocus={() => recent.length > 0 && !zip && setShowRecent(true)}
           />
         )}
 

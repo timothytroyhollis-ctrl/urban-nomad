@@ -115,14 +115,14 @@ export default function NomadMode() {
           <section className={styles.content}>
             <div className={styles.tabs}>
               <button className={`${styles.tab} ${activeTab === 'playbook' ? styles.tabActive : ''}`} onClick={() => setActiveTab('playbook')}>
-                📖 The Local Playbook
+                📖 <span className={styles.tabFull}>The Local </span>Playbook
               </button>
               <button className={`${styles.tab} ${activeTab === 'events' ? styles.tabActive : ''}`} onClick={() => setActiveTab('events')}>
                 🎟️ Events
                 {events.length > 0 && <span className={styles.badge}>{events.length}</span>}
               </button>
               <button className={`${styles.tab} ${activeTab === 'tips' ? styles.tabActive : ''}`} onClick={() => setActiveTab('tips')}>
-                💬 Community Tips
+                💬 <span className={styles.tabFull}>Community </span>Tips
                 {tips.length > 0 && <span className={styles.badge}>{tips.length}</span>}
               </button>
             </div>

@@ -171,6 +171,8 @@
 }
 
 .searchBtn {
+  position: relative;
+  z-index: 60; /* always above the recents dropdown (z-index 50) */
   font-weight: 700;
   font-size: 15px;
   padding: 14px 28px;
