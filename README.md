@@ -2,168 +2,72 @@
 
 > **Live Local, Explore Everywhere**
 
-A React PWA with a FastAPI backend for discovering local city events and getting AI-powered cultural intelligence for any city on Earth.
+**Live app:** [urbannomad.onrender.com](https://urbannomad.onrender.com)
+
+A React PWA that helps you discover what's happening in any city — whether you live there or you're just passing through.
 
 ---
 
 ## What It Does
 
-Urban Nomad has two modes:
+Urban Nomad has two modes designed around two different mindsets.
 
 ### 📍 Local Mode
-Search any city or zip code and get live event listings pulled from **Ticketmaster** and **Eventbrite** — concerts, festivals, sports, comedy, arts, and more. Filter by category and click through to buy tickets.
+You're a resident of this city.
+- Live event listings (concerts, sports, festivals, comedy, arts) sourced from Ticketmaster + Eventbrite
+- Filter by category and date — "this weekend," "next 7 days," or a custom range
+- Switch between a grid view and a calendar month view with today circled
+- Save events to your phone for later
+- Add events to your calendar (Apple Calendar, Outlook, Google)
+- **Share local knowledge** — contribute insider tips that travelers heading to your city will see
 
 ### ✈️ Nomad Mode
-Planning a trip or just curious about a city? Get three things in one search:
-- **The Local Playbook** — AI-generated cultural guide covering the city's vibe, etiquette, neighborhoods, food, and transport tips
-- **Events** — same live event listings as Local mode
-- **Community Tips** — insider tips posted by other nomads, filterable by category (Food, Transport, Safety, Etiquette, Nightlife, Hidden Gems)
+You're visiting somewhere new.
+- An AI-generated **Local Guide** for any city on Earth — vibe, etiquette, neighborhoods, food, transport
+- The same live event listings, so you know what's happening during your trip
+- **Read insider tips** posted by locals — the bus routes, the dive bars, the food trucks, the etiquette traps to avoid
 
 ---
 
-## Tech Stack
+## Built For Mobile
 
-| Layer | Tech |
-|---|---|
-| Frontend | React 18, Vite, React Router, CSS Modules |
-| PWA | Web App Manifest, Service Worker |
-| Backend | FastAPI, Python 3.11+, async SQLAlchemy |
-| Database | SQLite (via aiosqlite) |
-| Events API | Ticketmaster Discovery v2, Eventbrite v3 |
-| AI | OpenAI GPT-4o-mini |
-| Deploy | Render.com (static site + Python web service) |
+Urban Nomad is a Progressive Web App — you can install it directly to your phone's home screen from the browser. No app store required. Works fully offline for browsing previously cached content.
+
+Native sharing, geolocation auto-detect, and the Add to Calendar export all work like a real native app once installed.
 
 ---
 
-## Project Structure
+## Privacy & Ethics
 
-```
-urban-nomad/
-├── frontend/                  # React PWA
-│   ├── public/
-│   │   ├── logo.jpeg          # App logo
-│   │   ├── manifest.json      # PWA manifest
-│   │   ├── sw.js              # Service worker
-│   │   └── icons/             # PWA icons (192, 512)
-│   └── src/
-│       ├── components/
-│       │   ├── Header.jsx
-│       │   ├── LocationSearch.jsx   # City + State / Zip toggle
-│       │   ├── EventCard.jsx
-│       │   ├── TipCard.jsx
-│       │   └── Logo.jsx
-│       ├── pages/
-│       │   ├── Home.jsx       # Mode selector
-│       │   ├── LocalMode.jsx
-│       │   └── NomadMode.jsx
-│       └── services/
-│           └── api.js         # All backend fetch calls
-│
-├── backend/                   # FastAPI
-│   └── app/
-│       ├── main.py            # App entry, CORS, lifespan
-│       ├── database.py        # Async SQLAlchemy setup
-│       ├── models.py          # LocalTip table
-│       ├── routers/
-│       │   ├── events.py      # GET /api/events
-│       │   └── nomad.py       # GET /api/nomad/briefing, tips CRUD
-│       └── services/
-│           ├── ticketmaster.py
-│           ├── eventbrite.py
-│           └── openai_service.py
-│
-├── render.yaml                # Render.com deploy config
-└── .gitignore
-```
+Urban Nomad is built with privacy in mind:
+- **No accounts, no logins, no tracking**
+- Saved events and search history live only in your browser
+- Community tips are AI-moderated to keep the space free of hate, harassment, and harmful content
+
+Read our full ethics statement: **[ETHICS.md](./ETHICS.md)**
 
 ---
 
-## Local Development
+## Tech, at a glance
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+
-- API keys for Ticketmaster, Eventbrite, and OpenAI
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/TTHollis/urban-nomad.git
-cd urban-nomad
-```
-
-### 2. Set up the backend
-
-```bash
-cd backend
-cp .env.example .env
-# Fill in your API keys in .env
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-```
-
-### 3. Set up the frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open **http://localhost:5173**
+- React PWA (frontend) + FastAPI (backend) + SQLite (community tips)
+- AI: OpenAI GPT-4 for guides, OpenAI Moderation API for content screening
+- Events: Ticketmaster Discovery API + Eventbrite API
+- Geocoding: OpenStreetMap Nominatim
+- Deployed on Render.com
 
 ---
 
-## Environment Variables
+## Feedback & Contact
 
-Copy `backend/.env.example` to `backend/.env` and fill in your keys:
+Found a bug? Have an idea? Something feel off?
 
-```
-TICKETMASTER_API_KEY=your_key_here
-EVENTBRITE_TOKEN=your_token_here
-OPENAI_API_KEY=your_key_here
-```
-
-> ⚠️ **Never commit `.env`** — it is gitignored. Only `.env.example` belongs in the repo.
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/health` | Health check |
-| GET | `/api/events` | Search events by city, state, or zip |
-| GET | `/api/nomad/briefing` | AI cultural playbook for a city |
-| GET | `/api/nomad/tips` | Community tips for a city |
-| POST | `/api/nomad/tips` | Submit a new community tip |
-
----
-
-## Deploying to Render.com
-
-The `render.yaml` in the root configures both services automatically.
-
-1. Push to GitHub
-2. Go to [render.com](https://render.com) → New → Blueprint
-3. Connect your `urban-nomad` repo
-4. Add your API keys as environment variables in the Render dashboard
-5. Deploy
-
----
-
-## No Auth in v1
-
-Urban Nomad v1 is intentionally auth-free — no accounts, no logins. Community tips are posted anonymously or with a self-chosen handle.
-
----
-
-## Our Ethics
-
-Urban Nomad has explicit standards on inclusivity, AI honesty, user privacy, and content moderation. Read them in **[ETHICS.md](./ETHICS.md)**.
+- **Email:** [Timothy.Troy.Hollis@gmail.com](mailto:Timothy.Troy.Hollis@gmail.com)
+- **In-app feedback form** at the bottom of every page
+- **GitHub issues:** [github.com/TTHollis/urban-nomad/issues](https://github.com/TTHollis/urban-nomad/issues)
 
 ---
 
 ## License
 
-MIT
+MIT — see [LICENSE](./LICENSE) if/when added. Source is public so the work is transparent and ethics are verifiable, not as a step-by-step recipe to clone.
