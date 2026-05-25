@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..database import get_db
 from ..models import LocalTip
 from ..services.openai_service import generate_briefing, moderate_content
+from ..services.geocoding import canonicalize_location
 
 router = APIRouter(tags=["nomad"])
 
@@ -30,16 +31,18 @@ async def get_tips(
     city: str = Query(..., min_length=1, max_length=100),
     db: AsyncSession = Depends(get_db),
 ):
+    # Normalize zip → "City, State" so tips show up across both search modes
+    canonical = await canonicalize_location(city)
     # Only return approved tips to the public
     result = await db.execute(
         select(LocalTip)
-        .where(LocalTip.city == city, LocalTip.status == "approved")
+        .where(LocalTip.city == canonical, LocalTip.status == "approved")
         .order_by(LocalTip.created_at.desc())
         .limit(50)
     )
     tips = result.scalars().all()
     return {
-        "city": city,
+        "city": canonical,
         "tips": [
             {
                 "id": t.id,
@@ -55,6 +58,10 @@ async def get_tips(
 
 @router.post("/tips", status_code=201)
 async def post_tip(body: TipCreate, db: AsyncSession = Depends(get_db)):
+    # Normalize city so a tip submitted from a zip search shows up in
+    # city searches too (and vice versa)
+    canonical_city = await canonicalize_location(body.city)
+
     # Run AI moderation first
     try:
         moderation = await moderate_content(body.content)
@@ -62,8 +69,10 @@ async def post_tip(body: TipCreate, db: AsyncSession = Depends(get_db)):
         # If moderation API fails, fall back to permissive (better to allow than to lock users out)
         moderation = {"flagged": False, "categories": []}
 
+    payload = body.model_dump()
+    payload["city"] = canonical_city
     tip = LocalTip(
-        **body.model_dump(),
+        **payload,
         status="rejected" if moderation["flagged"] else "approved",
         rejection_categories=",".join(moderation["categories"]) if moderation["flagged"] else None,
     )

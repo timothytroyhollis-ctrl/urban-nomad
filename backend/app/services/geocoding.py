@@ -1,4 +1,5 @@
 """Geocoding helpers using OpenStreetMap Nominatim (free, no API key)."""
+import re
 import httpx
 
 NOMINATIM_SEARCH = "https://nominatim.openstreetmap.org/search"
@@ -64,3 +65,36 @@ async def zip_to_location(zip_code: str, country: str = "us") -> dict | None:
     if not city:
         return None
     return {"city": city, "state": state_code, "country": country_code}
+
+
+_ZIP_PATTERN = re.compile(r"^\d{5}$")
+
+
+async def canonicalize_location(label: str) -> str:
+    """
+    Normalize a location label so tips stored under a zip code show up
+    for a city search, and vice versa.
+
+    Rules:
+      - "32099"          -> "Jacksonville, FL"   (expand US zips)
+      - "Jacksonville, FL" -> unchanged
+      - "Tokyo"          -> unchanged
+      - "Jacksonville, FL (32099)" -> "Jacksonville, FL" (strip zip suffix)
+
+    Returns the canonical label. Falls back to the input if lookup fails.
+    """
+    cleaned = (label or "").strip()
+    if not cleaned:
+        return cleaned
+
+    # Strip any "(12345)" zip suffix the events router may have added
+    cleaned = re.sub(r"\s*\(\d{5}\)\s*$", "", cleaned)
+
+    # 5-digit numeric → US zip → expand to city, state
+    if _ZIP_PATTERN.match(cleaned):
+        location = await zip_to_location(cleaned)
+        if location and location.get("city"):
+            state = location.get("state")
+            return f"{location['city']}, {state}" if state else location["city"]
+
+    return cleaned
