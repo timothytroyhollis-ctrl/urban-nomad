@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import styles from './CalendarView.module.css'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -48,6 +48,21 @@ export default function CalendarView({ events, accentColor = 'green' }) {
     }
     return new Date(today.getFullYear(), today.getMonth(), 1)
   })
+
+  // When the events list changes (e.g. a new date filter), jump to the month
+  // of the first event in the new result set. Keeps the calendar in sync with
+  // whatever the user just filtered to.
+  useEffect(() => {
+    const first = events.find(e => e.start_date)
+    if (!first) return
+    const [y, m] = first.start_date.split('-')
+    const target = new Date(parseInt(y), parseInt(m) - 1, 1)
+    setViewDate(prev =>
+      prev.getFullYear() === target.getFullYear() && prev.getMonth() === target.getMonth()
+        ? prev
+        : target
+    )
+  }, [events])
 
   const eventsByDate = useMemo(() => {
     const map = new Map()
